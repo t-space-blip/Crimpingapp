@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 判定NG（リングなし）用の大きな赤の「×」。白縁でプレビュー上でも見やすくする -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="200dp"
+    android:height="200dp"
+    android:viewportWidth="100"
+    android:viewportHeight="100">
+
+    <path
+        android:pathData="M18,18 L82,82 M82,18 L18,82"
+        android:strokeLineCap="round"
+        android:strokeWidth="20"
+        android:strokeColor="#FFFFFFFF" />
+    <path
+        android:pathData="M18,18 L82,82 M82,18 L18,82"
+        android:strokeLineCap="round"
+        android:strokeWidth="14"
+        android:strokeColor="@color/result_ng" />
+</vector>

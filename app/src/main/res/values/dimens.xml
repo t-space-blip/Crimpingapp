@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- ホーム画面：タイプ選択ボタン同士の間隔 -->
+    <dimen name="type_button_gap">12dp</dimen>
+    <!-- ホーム画面：型番ピッカー・サンプル撮影・判定開始の横幅（画面幅いっぱいにせず中央寄せ） -->
+    <dimen name="home_control_width">260dp</dimen>
+</resources>

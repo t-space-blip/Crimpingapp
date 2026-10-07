@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Eリング判定</string>
+
+    <!-- ホーム画面 -->
+    <string name="home_title">圧着工具 Eリング有無判定</string>
+    <string name="label_select_type">Typeを選んでください</string>
+    <string name="type_a">A-type</string>
+    <string name="type_mini">Mini-type</string>
+    <string name="type_hozan">HOZAN</string>
+    <string name="label_tool_size">工具サイズ</string>
+    <string name="size_placeholder">― Type未選択 ―</string>
+    <string name="home_hint">Typeを選び、サイズ名を選択すると『サンプル撮影』『判定開始』が有効になります。</string>
+    <string name="btn_sample_capture">サンプル撮影</string>
+    <string name="btn_start_judge">判定開始</string>
+    <string name="sample_status_none">基準画像: Type未選択</string>
+    <string name="sample_status_format">基準画像: リングなし %1$s ／ リングあり %2$s ／ 背景 %3$s</string>
+    <string name="mark_registered">登録済</string>
+    <string name="mark_missing">未登録</string>
+    <string name="toast_samples_missing">基準画像（リングなし／リングあり／背景のみ）が未登録です。サンプル撮影を行ってください。</string>
+
+    <!-- カメラ画面 -->
+    <string name="guide_label">工具先端を枠内に合わせてください</string>
+    <string name="title_sample_mode">サンプル撮影: %1$s</string>
+    <string name="title_judge_mode">判定中: %1$s</string>
+    <string name="label_no_ring">リングなし</string>
+    <string name="label_has_ring">リングあり</string>
+    <string name="label_background">背景のみ</string>
+    <string name="btn_capture_no_ring">リングなしを撮影</string>
+    <string name="btn_capture_has_ring">リングありを撮影</string>
+    <string name="btn_capture_background">背景のみを撮影（工具なし）</string>
+    <string name="btn_go_judge">判定開始</string>
+    <string name="btn_go_sample">サンプル再撮影</string>
+    <string name="no_image">未登録</string>
+    <string name="toast_camera_not_ready">カメラの準備中です。少し待ってから再度撮影してください。</string>
+    <string name="toast_saved">「%1$s」の基準画像を保存しました</string>
+    <string name="toast_save_failed">保存に失敗しました</string>
+    <string name="toast_permission_denied">カメラの権限が必要です</string>
+    <string name="toast_camera_error">カメラの起動に失敗しました</string>
+
+    <string name="result_waiting">判定待機中…</string>
+    <string name="result_has_ring">Eリング あり</string>
+    <string name="result_no_ring">Eリング なし</string>
+    <string name="mark_tool_detected">！</string>
+</resources>

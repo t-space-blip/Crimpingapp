@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ホーム画面（縦画面固定）
+     上部 4/8 : タイプ・サイズ選択エリア / 中央 2/8 : 案内 / 下部 2/8 (=1/4) : ボタンエリア -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
+    android:orientation="vertical"
+    android:paddingHorizontal="24dp"
+    tools:context=".ui.MainActivity">
+
+    <!-- 上部：タイプ・サイズ選択（約4/8） -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="4"
+        android:gravity="center_vertical"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="24dp"
+            android:text="@string/home_title"
+            android:textAppearance="?attr/textAppearanceHeadlineSmall" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:text="@string/label_select_type"
+            android:textAppearance="?attr/textAppearanceLabelLarge" />
+
+        <!-- タイプ選択（ラジオボタン相当：初期は未選択、選択後は常に1つだけ選択）
+             ボタン間に間隔を空けるため ToggleGroup ではなく LinearLayout で並べ、選択状態はコードで管理する -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/buttonTypeA"
+                style="@style/Widget.Material3.Button.OutlinedButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="@dimen/type_button_gap"
+                android:layout_weight="1"
+                android:text="@string/type_a" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/buttonTypeMini"
+                style="@style/Widget.Material3.Button.OutlinedButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="@dimen/type_button_gap"
+                android:layout_weight="1"
+                android:text="@string/type_mini" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/buttonTypeHozan"
+                style="@style/Widget.Material3.Button.OutlinedButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/type_hozan" />
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:text="@string/label_tool_size"
+            android:textAppearance="?attr/textAppearanceLabelLarge" />
+
+        <!-- 型番選択（プルダウン）。タイプ未選択の間は非活性 -->
+        <Spinner
+            android:id="@+id/spinnerSize"
+            android:layout_width="@dimen/home_control_width"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="8dp"
+            android:minHeight="48dp"
+            android:enabled="false" />
+
+        <TextView
+            android:id="@+id/textSampleStatus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:text="@string/sample_status_none"
+            android:textAppearance="?attr/textAppearanceBodyMedium" />
+    </LinearLayout>
+
+    <!-- 中央：案内（約2/8） -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="2"
+        android:gravity="center"
+        android:text="@string/home_hint"
+        android:textAppearance="?attr/textAppearanceBodyLarge" />
+
+    <!-- 下部：ボタンエリア（約1/4） -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="2"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/buttonSampleCapture"
+            style="@style/Widget.Material3.Button.OutlinedButton"
+            android:layout_width="@dimen/home_control_width"
+            android:layout_height="64dp"
+            android:enabled="false"
+            android:text="@string/btn_sample_capture"
+            android:textSize="18sp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/buttonStartJudge"
+            android:layout_width="@dimen/home_control_width"
+            android:layout_height="64dp"
+            android:layout_marginTop="12dp"
+            android:enabled="false"
+            android:text="@string/btn_start_judge"
+            android:textSize="18sp" />
+    </LinearLayout>
+</LinearLayout>

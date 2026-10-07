@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="primary">#1565C0</color>
+    <color name="on_primary">#FFFFFF</color>
+    <color name="result_ok">#2E7D32</color>
+    <color name="result_ng">#C62828</color>
+    <color name="result_neutral">#616161</color>
+    <color name="tool_detected">#FF9800</color>
+    <color name="panel_background">#E6121212</color>
+    <color name="thumb_background">#33FFFFFF</color>
+</resources>
