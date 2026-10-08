@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- ホーム画面下部のスイッチ風ボタン -->
+    <declare-styleable name="LightSwitchButton">
+        <attr name="android:text" />
+        <attr name="switchIcon" format="reference" />
+        <!-- 点灯時の色 -->
+        <attr name="switchVariant" format="enum">
+            <enum name="white" value="0" />
+            <enum name="sky" value="1" />
+        </attr>
+    </declare-styleable>
+</resources>

@@ -1,131 +1,173 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- ホーム画面（縦画面固定）
-     上部 4/8 : タイプ・サイズ選択エリア / 中央 2/8 : 案内 / 下部 2/8 (=1/4) : ボタンエリア -->
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+     背景（左＝緑・右＝赤の半面と〇×）の上に、見出し・Type選択・工具サイズ（ドラムロール）・案内・ボタンを縦に並べる。
+     画面が低い端末でも操作できるよう全体を ScrollView に入れ、案内文が残りの縦スペースを使う。
+     ボタンの発光は枠の外へはみ出して描くため、親の clipChildren / clipToPadding を無効にしている。 -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true"
-    android:orientation="vertical"
-    android:paddingHorizontal="24dp"
     tools:context=".ui.MainActivity">
 
-    <!-- 上部：タイプ・サイズ選択（約4/8） -->
-    <LinearLayout
+    <com.example.eringchecker.ui.widget.HomeBackgroundView
+        android:id="@+id/homeBackground"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="4"
-        android:gravity="center_vertical"
-        android:orientation="vertical">
+        android:layout_height="match_parent" />
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="24dp"
-            android:text="@string/home_title"
-            android:textAppearance="?attr/textAppearanceHeadlineSmall" />
+    <ScrollView
+        android:id="@+id/scrollHome"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clipChildren="false"
+        android:fillViewport="true"
+        android:fitsSystemWindows="true"
+        android:overScrollMode="never">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
-            android:text="@string/label_select_type"
-            android:textAppearance="?attr/textAppearanceLabelLarge" />
-
-        <!-- タイプ選択（ラジオボタン相当：初期は未選択、選択後は常に1つだけ選択）
-             ボタン間に間隔を空けるため ToggleGroup ではなく LinearLayout で並べ、選択状態はコードで管理する -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:clipChildren="false"
+            android:clipToPadding="false"
+            android:orientation="vertical"
+            android:paddingHorizontal="@dimen/home_side_margin"
+            android:paddingTop="16dp"
+            android:paddingBottom="20dp">
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/buttonTypeA"
-                style="@style/Widget.Material3.Button.OutlinedButton"
-                android:layout_width="0dp"
+            <!-- 見出し：2行をひとかたまり（幅は長い方の行に合わせる）にして画面中央に置き、行どうしは左揃え -->
+            <LinearLayout
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="@dimen/type_button_gap"
-                android:layout_weight="1"
-                android:text="@string/type_a" />
+                android:layout_gravity="center_horizontal"
+                android:orientation="vertical">
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/buttonTypeMini"
-                style="@style/Widget.Material3.Button.OutlinedButton"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="@dimen/type_button_gap"
-                android:layout_weight="1"
-                android:text="@string/type_mini" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/mplus1p_bold"
+                    android:letterSpacing="0.14"
+                    android:text="@string/home_title"
+                    android:textColor="#1A56B8"
+                    android:textSize="12sp" />
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/buttonTypeHozan"
-                style="@style/Widget.Material3.Button.OutlinedButton"
-                android:layout_width="0dp"
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:baselineAligned="true"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/mplus1p_extrabold"
+                        android:text="@string/home_name"
+                        android:textColor="#18202B"
+                        android:textSize="30sp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:fontFamily="@font/mplus1p_bold"
+                        android:text="@string/home_version"
+                        android:textColor="#5B6678"
+                        android:textSize="18sp" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <TextView
+                style="@style/HomeSectionLabel"
+                android:layout_marginTop="18dp"
+                android:text="@string/label_select_type" />
+
+            <!-- タイプ選択（ラジオボタン相当：初期は未選択、選択後は常に1つだけ選択。選択状態はコードで管理） -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:clipChildren="false"
+                android:orientation="horizontal">
+
+                <com.example.eringchecker.ui.widget.TypeSwitchButton
+                    android:id="@+id/buttonTypeA"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="@dimen/type_button_gap"
+                    android:layout_weight="1"
+                    android:text="@string/type_a" />
+
+                <com.example.eringchecker.ui.widget.TypeSwitchButton
+                    android:id="@+id/buttonTypeMini"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="@dimen/type_button_gap"
+                    android:layout_weight="1"
+                    android:text="@string/type_mini" />
+
+                <com.example.eringchecker.ui.widget.TypeSwitchButton
+                    android:id="@+id/buttonTypeHozan"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/type_hozan" />
+            </LinearLayout>
+
+            <TextView
+                style="@style/HomeSectionLabel"
+                android:layout_marginTop="18dp"
+                android:text="@string/label_tool_size" />
+
+            <!-- 型番選択（ドラムロール）。タイプ未選択の間は回せない -->
+            <com.example.eringchecker.ui.widget.DrumRollPicker
+                android:id="@+id/pickerSize"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:enabled="false" />
+
+            <!-- 「基準画像：」＋登録状況（文字の太さはコードで付ける） -->
+            <TextView
+                android:id="@+id/textSampleStatus"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:fontFamily="@font/mplus1p_medium"
+                android:gravity="center"
+                android:textColor="#5B6678"
+                android:textSize="14sp" />
+
+            <!-- 案内：残りの縦スペースの中央 -->
+            <TextView
+                android:id="@+id/textHint"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="@string/type_hozan" />
+                android:fontFamily="@font/mplus1p_regular"
+                android:gravity="center"
+                android:lineSpacingMultiplier="1.8"
+                android:paddingVertical="16dp"
+                android:text="@string/home_hint"
+                android:textColor="#4A5568"
+                android:textSize="14sp" />
+
+            <com.example.eringchecker.ui.widget.LightSwitchButton
+                android:id="@+id/buttonSampleCapture"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:enabled="false"
+                android:text="@string/btn_sample_capture"
+                app:switchIcon="@drawable/ic_home_camera"
+                app:switchVariant="white" />
+
+            <com.example.eringchecker.ui.widget.LightSwitchButton
+                android:id="@+id/buttonStartJudge"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:enabled="false"
+                android:text="@string/btn_start_judge"
+                app:switchIcon="@drawable/ic_home_check"
+                app:switchVariant="sky" />
         </LinearLayout>
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            android:text="@string/label_tool_size"
-            android:textAppearance="?attr/textAppearanceLabelLarge" />
-
-        <!-- 型番選択（プルダウン）。タイプ未選択の間は非活性 -->
-        <Spinner
-            android:id="@+id/spinnerSize"
-            android:layout_width="@dimen/home_control_width"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginTop="8dp"
-            android:minHeight="48dp"
-            android:enabled="false" />
-
-        <TextView
-            android:id="@+id/textSampleStatus"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:text="@string/sample_status_none"
-            android:textAppearance="?attr/textAppearanceBodyMedium" />
-    </LinearLayout>
-
-    <!-- 中央：案内（約2/8） -->
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="2"
-        android:gravity="center"
-        android:text="@string/home_hint"
-        android:textAppearance="?attr/textAppearanceBodyLarge" />
-
-    <!-- 下部：ボタンエリア（約1/4） -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="2"
-        android:gravity="center"
-        android:orientation="vertical">
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/buttonSampleCapture"
-            style="@style/Widget.Material3.Button.OutlinedButton"
-            android:layout_width="@dimen/home_control_width"
-            android:layout_height="64dp"
-            android:enabled="false"
-            android:text="@string/btn_sample_capture"
-            android:textSize="18sp" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/buttonStartJudge"
-            android:layout_width="@dimen/home_control_width"
-            android:layout_height="64dp"
-            android:layout_marginTop="12dp"
-            android:enabled="false"
-            android:text="@string/btn_start_judge"
-            android:textSize="18sp" />
-    </LinearLayout>
-</LinearLayout>
+    </ScrollView>
+</FrameLayout>

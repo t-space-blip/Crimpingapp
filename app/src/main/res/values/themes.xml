@@ -5,6 +5,16 @@
         <item name="colorOnPrimary">@color/on_primary</item>
     </style>
 
+    <!-- ホーム画面の項目名（「Typeを選んでください」「工具サイズ」） -->
+    <style name="HomeSectionLabel">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:gravity">center</item>
+        <item name="android:fontFamily">@font/mplus1p_bold</item>
+        <item name="android:textColor">#3A4556</item>
+        <item name="android:textSize">14sp</item>
+    </style>
+
     <style name="Theme.ERingChecker.Fullscreen">
         <item name="android:windowBackground">@android:color/black</item>
         <item name="android:windowFullscreen">true</item>

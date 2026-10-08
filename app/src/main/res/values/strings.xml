@@ -3,18 +3,23 @@
     <string name="app_name">Eリング判定</string>
 
     <!-- ホーム画面 -->
-    <string name="home_title">圧着工具 Eリング有無判定</string>
+    <string name="home_title">CRIMP TOOL CHECK</string>
+    <string name="home_name">はんべつくん</string>
+    <string name="home_version">Ver.2.0</string>
     <string name="label_select_type">Typeを選んでください</string>
     <string name="type_a">A-type</string>
     <string name="type_mini">Mini-type</string>
     <string name="type_hozan">HOZAN</string>
     <string name="label_tool_size">工具サイズ</string>
-    <string name="size_placeholder">― Type未選択 ―</string>
-    <string name="home_hint">Typeを選び、サイズ名を選択すると『サンプル撮影』『判定開始』が有効になります。</string>
+    <string name="size_placeholder">— Type未選択 —</string>
+    <string name="size_select_prompt">サイズを選択</string>
+    <string name="home_hint">Typeを選び、サイズ名を選択すると\n『サンプル撮影』『判定開始』が有効になります。</string>
     <string name="btn_sample_capture">サンプル撮影</string>
     <string name="btn_start_judge">判定開始</string>
-    <string name="sample_status_none">基準画像: Type未選択</string>
-    <string name="sample_status_format">基準画像: リングなし %1$s ／ リングあり %2$s ／ 背景 %3$s</string>
+    <string name="label_sample_status">基準画像：</string>
+    <string name="sample_status_none">Type未選択</string>
+    <string name="sample_status_no_size">サイズ未選択</string>
+    <string name="sample_status_format">リングなし %1$s ／ リングあり %2$s ／ 背景 %3$s</string>
     <string name="mark_registered">登録済</string>
     <string name="mark_missing">未登録</string>
     <string name="toast_samples_missing">基準画像（リングなし／リングあり／背景のみ）が未登録です。サンプル撮影を行ってください。</string>
