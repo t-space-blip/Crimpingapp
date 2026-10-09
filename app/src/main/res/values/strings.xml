@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Eリング判定</string>
+    <string name="app_name">はんていくん</string>
 
     <!-- ホーム画面 -->
     <string name="home_title">CRIMP TOOL CHECK</string>
-    <string name="home_name">はんべつくん</string>
+    <string name="home_name">はんていくん</string>
     <string name="home_version">Ver.2.0</string>
     <string name="label_select_type">Typeを選んでください</string>
     <string name="type_a">A-type</string>
