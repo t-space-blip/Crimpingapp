@@ -19,7 +19,6 @@ import com.example.eringchecker.data.ToolSize
 import com.example.eringchecker.data.ToolType
 import com.example.eringchecker.databinding.ActivityMainBinding
 import com.example.eringchecker.ui.widget.TypeSwitchButton
-import kotlin.math.max
 
 /** ホーム画面（縦画面固定）：工具タイプ・サイズ選択と、サンプル撮影／判定への遷移。 */
 class MainActivity : AppCompatActivity() {
@@ -129,18 +128,21 @@ class MainActivity : AppCompatActivity() {
         updateUi()
     }
 
-    /** 背景の〇×を、案内文のあたり（ドラムロールより下）に合わせる。 */
+    /**
+     * 背景の〇×の縦の中心を、ドラムロールの下端とサンプル撮影ボタンの上端のちょうど中間に合わせる。
+     * どちらも枠がView全体に描かれるので、Viewの位置がそのまま枠の端になる。
+     */
     private fun setupBackgroundSymbols() {
         val update = {
             val bgLoc = IntArray(2).also { binding.homeBackground.getLocationInWindow(it) }
-            val hintLoc = IntArray(2).also { binding.textHint.getLocationInWindow(it) }
             val pickerLoc = IntArray(2).also { binding.pickerSize.getLocationInWindow(it) }
-            val hintCenter = hintLoc[1] - bgLoc[1] + binding.textHint.height / 2f
-            // 〇の外径（半径58dp＋線幅の半分14dp）がドラムロールに重ならない位置より下に置く
-            val minCenter = pickerLoc[1] - bgLoc[1] + binding.pickerSize.height + 76 * resources.displayMetrics.density
-            binding.homeBackground.symbolCenterY = max(hintCenter, minCenter)
+            val buttonLoc = IntArray(2).also { binding.buttonSampleCapture.getLocationInWindow(it) }
+            val pickerBottom = pickerLoc[1] - bgLoc[1] + binding.pickerSize.height
+            val buttonTop = buttonLoc[1] - bgLoc[1]
+            binding.homeBackground.symbolCenterY = (pickerBottom + buttonTop) / 2f
         }
-        binding.textHint.addOnLayoutChangeListener { _, _, _, _, _, _, _, _, _ -> update() }
+        binding.pickerSize.addOnLayoutChangeListener { _, _, _, _, _, _, _, _, _ -> update() }
+        binding.buttonSampleCapture.addOnLayoutChangeListener { _, _, _, _, _, _, _, _, _ -> update() }
         binding.scrollHome.viewTreeObserver.addOnScrollChangedListener { update() }
     }
 
