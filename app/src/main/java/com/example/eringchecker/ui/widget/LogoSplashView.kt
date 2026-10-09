@@ -83,6 +83,8 @@ class LogoSplashView @JvmOverloads constructor(
     }
     private var versionX = 0f
     private var versionBaseline = 0f
+    /** 「Ver.2.0」のフェードインを始める時刻[秒]。字形の位置から [onSizeChanged] で求める。 */
+    private var versionFadeStart = Float.MAX_VALUE
 
     // ---- 「© 2026 TSUNOYAN WORKS」 ----
     private val copyrightPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
@@ -134,8 +136,21 @@ class LogoSplashView @JvmOverloads constructor(
         // 字形の外形が画面の中央に来るように配置する
         titlePaint.getTextPath(title, 0, title.length, 0f, 0f, titlePath)
         titlePath.computeBounds(titleBounds, true)
-        titlePath.offset(w / 2f - titleBounds.centerX(), h / 2f - titleBounds.centerY())
+        val dx = w / 2f - titleBounds.centerX()
+        titlePath.offset(dx, h / 2f - titleBounds.centerY())
         titlePath.computeBounds(titleBounds, true)
+
+        // 「Ver.2.0」は、光の帯の中心が「K」と「U」の間（Kの右端とUの左端の中点）を通過する瞬間にフェードインを始める
+        val kuIndex = title.indexOf("KU") + 1
+        val glyphPath = Path()
+        val glyphBounds = RectF()
+        titlePaint.getTextPath(title, 0, kuIndex, 0f, 0f, glyphPath)
+        glyphPath.computeBounds(glyphBounds, true)
+        val kRight = glyphBounds.right
+        titlePaint.getTextPath(title, kuIndex, kuIndex + 1, titlePaint.measureText(title, 0, kuIndex), 0f, glyphPath)
+        glyphPath.computeBounds(glyphBounds, true)
+        val kuGapX = (kRight + glyphBounds.left) / 2f + dx
+        versionFadeStart = BAND_START_SEC + (BAND_END_SEC - BAND_START_SEC) * bandProgressAt(kuGapX)
 
         titleFill.shader = LinearGradient(
             0f, titleBounds.top, 0f, titleBounds.bottom,
@@ -188,10 +203,10 @@ class LogoSplashView @JvmOverloads constructor(
         drawCopyright(canvas, mainAlpha)
 
         // 2. 光の帯（文字の形の中だけ）
-        if (t in 0.4f..1.6f) drawBand(canvas, progress(t, 0.4f, 1.6f), mainAlpha)
+        if (t in BAND_START_SEC..BAND_END_SEC) drawBand(canvas, progress(t, BAND_START_SEC, BAND_END_SEC), mainAlpha)
 
-        // 3. 「Ver.2.0」のフェードイン
-        val versionAlpha = progress(t, 0.89f, 1.05f) * fadeOut
+        // 3. 「Ver.2.0」のフェードイン（光の帯の中心が「K」と「U」の間を通過した瞬間から）
+        val versionAlpha = progress(t, versionFadeStart, versionFadeStart + VERSION_FADE_SEC) * fadeOut
         if (versionAlpha > 0f) {
             versionPaint.alpha = (255 * versionAlpha).toInt()
             canvas.drawText(version, versionX, versionBaseline, versionPaint)
@@ -207,6 +222,13 @@ class LogoSplashView @JvmOverloads constructor(
             onFinished?.invoke()
         }
     }
+
+    /** 光の帯の中心の通り道：「H」の左のすぐ外側（帯の半幅ぶん外）から「N」の右のすぐ外側まで。 */
+    private val bandStartX get() = titleBounds.left - titleBounds.width() * 0.12f / 2f
+    private val bandEndX get() = titleBounds.right + titleBounds.width() * 0.12f / 2f
+
+    /** 光の帯の中心が x を通過するときの進み具合（0〜1）。 */
+    private fun bandProgressAt(x: Float): Float = ((x - bandStartX) / (bandEndX - bandStartX)).coerceIn(0f, 1f)
 
     private fun drawTitle(canvas: Canvas, alpha: Float) {
         if (alpha <= 0f) return
@@ -232,12 +254,9 @@ class LogoSplashView @JvmOverloads constructor(
 
     /** 帯の中心を「H」の左のすぐ外側から「N」の右のすぐ外側まで等速で動かし、約10°右に傾けて文字を塗る。 */
     private fun drawBand(canvas: Canvas, p: Float, alpha: Float) {
-        val half = titleBounds.width() * 0.12f / 2f
-        val startX = titleBounds.left - half
-        val endX = titleBounds.right + half
         bandMatrix.reset()
         bandMatrix.postRotate(10f)
-        bandMatrix.postTranslate(startX + (endX - startX) * p, titleBounds.centerY())
+        bandMatrix.postTranslate(bandStartX + (bandEndX - bandStartX) * p, titleBounds.centerY())
 
         // うっすらしたグロー：帯が当たっている文字をぼかして重ね、文字のまわりを淡く光らせる
         // （ぼかしが使えない端末では、太さを変えた薄い輪郭線を重ねて代用する）
@@ -298,6 +317,13 @@ class LogoSplashView @JvmOverloads constructor(
 
     private companion object {
         const val TOTAL_SEC = 3.0f
+
+        // 光の帯が「H」の左から「N」の右まで走る時間帯[秒]
+        const val BAND_START_SEC = 0.4f
+        const val BAND_END_SEC = 1.6f
+
+        /** 「Ver.2.0」のフェードインにかける時間[秒]。 */
+        const val VERSION_FADE_SEC = 0.15f
 
         // キラーンのキーフレーム（時刻[秒] → 大きさ・回転[度]・不透明度）
         val SPARKLE_TIMES = floatArrayOf(1.44f, 1.67f, 1.98f, 2.43f)
