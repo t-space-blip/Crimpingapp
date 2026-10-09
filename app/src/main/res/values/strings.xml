@@ -47,4 +47,8 @@
     <string name="result_has_ring">Eリング あり</string>
     <string name="result_no_ring">Eリング なし</string>
     <string name="mark_tool_detected">！</string>
+
+    <!-- 起動ロゴ画面 -->
+    <string name="splash_copyright_year">"© 2026 "</string>
+    <string name="splash_copyright_name">TSUNOYAN WORKS</string>
 </resources>

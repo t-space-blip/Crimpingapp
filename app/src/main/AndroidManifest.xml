@@ -20,16 +20,23 @@
             android:name="android.window.PROPERTY_COMPAT_ALLOW_RESTRICTED_RESIZABILITY"
             android:value="true" />
 
-        <!-- ホーム画面：縦画面固定 -->
+        <!-- 起動ロゴ画面：縦画面固定。約3秒後にホーム画面へ切り替えて閉じる -->
         <activity
-            android:name=".ui.MainActivity"
+            android:name=".ui.SplashActivity"
             android:exported="true"
-            android:screenOrientation="portrait">
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.ERingChecker.Splash">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <!-- ホーム画面：縦画面固定 -->
+        <activity
+            android:name=".ui.MainActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
 
         <!-- カメラ画面（サンプル撮影 / 判定）：横画面固定 -->
         <activity
