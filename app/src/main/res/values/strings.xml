@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">はんていくん2.1</string>
+    <string name="app_name">はんていくんVer.2.1</string>
 
     <!-- ホーム画面 -->
     <string name="home_title">CRIMP TOOL CHECK</string>
