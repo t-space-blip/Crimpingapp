@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">はんていくん</string>
+    <string name="app_name">はんていくん2.1</string>
 
     <!-- ホーム画面 -->
     <string name="home_title">CRIMP TOOL CHECK</string>
     <string name="home_name">はんていくん</string>
-    <string name="home_version">Ver.2.0</string>
+    <string name="home_version">Ver.2.1</string>
     <string name="label_select_type">Typeを選んでください</string>
     <string name="type_a">A-type</string>
     <string name="type_mini">Mini-type</string>

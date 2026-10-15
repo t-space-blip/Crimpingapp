@@ -21,7 +21,7 @@ import androidx.core.view.WindowInsetsCompat
 import com.example.eringchecker.R
 
 /**
- * 起動ロゴ画面。黒地の中央に「HANTEIKUN」、右下に「Ver.2.0」、最下部に「© 2026 TSUNOYAN WORKS」を描き、
+ * 起動ロゴ画面。黒地の中央に「HANTEIKUN」、右下に「Ver.2.1」、最下部に「© 2026 TSUNOYAN WORKS」を描き、
  * 最初のフレームから [TOTAL_SEC] 秒のアニメーション（フェードイン → 光の帯 → キラーン → フェードアウト）を再生する。
  * 位置はすべて画面サイズと「HANTEIKUN」の実際の字形の外形から計算する。
  */
@@ -74,7 +74,7 @@ class LogoSplashView @JvmOverloads constructor(
     private var bandShader: Shader? = null
     private var bandGlowShader: Shader? = null
 
-    // ---- 「Ver.2.0」 ----
+    // ---- 「Ver.2.1」 ----
     private val versionPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         typeface = this@LogoSplashView.typeface
         letterSpacing = 0.12f
@@ -83,7 +83,7 @@ class LogoSplashView @JvmOverloads constructor(
     }
     private var versionX = 0f
     private var versionBaseline = 0f
-    /** 「Ver.2.0」のフェードインを始める時刻[秒]。字形の位置から [onSizeChanged] で求める。 */
+    /** 「Ver.2.1」のフェードインを始める時刻[秒]。字形の位置から [onSizeChanged] で求める。 */
     private var versionFadeStart = Float.MAX_VALUE
 
     // ---- 「© 2026 TSUNOYAN WORKS」 ----
@@ -140,7 +140,7 @@ class LogoSplashView @JvmOverloads constructor(
         titlePath.offset(dx, h / 2f - titleBounds.centerY())
         titlePath.computeBounds(titleBounds, true)
 
-        // 「Ver.2.0」は、光の帯の中心が「K」と「U」の間（Kの右端とUの左端の中点）を通過する瞬間にフェードインを始める
+        // 「Ver.2.1」は、光の帯の中心が「K」と「U」の間（Kの右端とUの左端の中点）を通過する瞬間にフェードインを始める
         val kuIndex = title.indexOf("KU") + 1
         val glyphPath = Path()
         val glyphBounds = RectF()
@@ -180,7 +180,7 @@ class LogoSplashView @JvmOverloads constructor(
             Shader.TileMode.CLAMP,
         )
 
-        // 「Ver.2.0」：字形の右端を「N」の右端にそろえ、上端を「HANTEIKUN」の下10dpに置く
+        // 「Ver.2.1」：字形の右端を「N」の右端にそろえ、上端を「HANTEIKUN」の下10dpに置く
         val versionPath = Path()
         val versionBounds = RectF()
         versionPaint.getTextPath(version, 0, version.length, 0f, 0f, versionPath)
@@ -205,7 +205,7 @@ class LogoSplashView @JvmOverloads constructor(
         // 2. 光の帯（文字の形の中だけ）
         if (t in BAND_START_SEC..BAND_END_SEC) drawBand(canvas, progress(t, BAND_START_SEC, BAND_END_SEC), mainAlpha)
 
-        // 3. 「Ver.2.0」のフェードイン（光の帯の中心が「K」と「U」の間を通過した瞬間から）
+        // 3. 「Ver.2.1」のフェードイン（光の帯の中心が「K」と「U」の間を通過した瞬間から）
         val versionAlpha = progress(t, versionFadeStart, versionFadeStart + VERSION_FADE_SEC) * fadeOut
         if (versionAlpha > 0f) {
             versionPaint.alpha = (255 * versionAlpha).toInt()
@@ -322,7 +322,7 @@ class LogoSplashView @JvmOverloads constructor(
         const val BAND_START_SEC = 0.4f
         const val BAND_END_SEC = 1.6f
 
-        /** 「Ver.2.0」のフェードインにかける時間[秒]。 */
+        /** 「Ver.2.1」のフェードインにかける時間[秒]。 */
         const val VERSION_FADE_SEC = 0.15f
 
         // キラーンのキーフレーム（時刻[秒] → 大きさ・回転[度]・不透明度）
