@@ -62,4 +62,7 @@ dependencies {
     implementation("androidx.camera:camera-camera2:$cameraxVersion")
     implementation("androidx.camera:camera-lifecycle:$cameraxVersion")
     implementation("androidx.camera:camera-view:$cameraxVersion")
+
+    // AI 判定（Teachable Machine の .tflite モデル）。LiteRT は TensorFlow Lite の後継で、API は org.tensorflow.lite のまま
+    implementation("com.google.ai.edge.litert:litert:1.4.0")
 }

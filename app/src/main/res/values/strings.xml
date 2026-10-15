@@ -46,7 +46,11 @@
     <string name="result_waiting">判定待機中…</string>
     <string name="result_has_ring">Eリング あり</string>
     <string name="result_no_ring">Eリング なし</string>
+    <string name="result_uncertain">判定できません</string>
     <string name="mark_tool_detected">！</string>
+    <string name="toast_ai_load_failed">AIモデルの読み込みに失敗しました</string>
+    <!-- テスト用：AI の確率表示 -->
+    <string name="debug_ai_scores">OK %1$d%%\nNG %2$d%%\n工具なし %3$d%%</string>
 
     <!-- 起動ロゴ画面 -->
     <string name="splash_copyright_year">"© 2026 "</string>

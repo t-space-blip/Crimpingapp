@@ -77,6 +77,22 @@
             android:textStyle="bold"
             android:visibility="gone"
             tools:visibility="visible" />
+
+        <!-- テスト用：AI の OK・NG・工具なしの％（AI_SHOW_DEBUG_SCORES で表示切替。不要になったら削除してよい） -->
+        <TextView
+            android:id="@+id/textAiScores"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|start"
+            android:layout_margin="8dp"
+            android:background="#99000000"
+            android:fontFamily="monospace"
+            android:padding="4dp"
+            android:textColor="@android:color/white"
+            android:textSize="11sp"
+            android:visibility="gone"
+            tools:text="OK 95%\nNG 3%\n工具なし 2%"
+            tools:visibility="visible" />
     </FrameLayout>
 
     <!-- 操作パネル -->

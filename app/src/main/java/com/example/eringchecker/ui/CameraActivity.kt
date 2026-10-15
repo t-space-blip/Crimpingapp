@@ -31,6 +31,11 @@ import com.example.eringchecker.data.SampleType
 import com.example.eringchecker.data.ToolSize
 import com.example.eringchecker.data.ToolSizeRepository
 import com.example.eringchecker.databinding.ActivityCameraBinding
+import com.example.eringchecker.image.AI_INFERENCE_INTERVAL_MS
+import com.example.eringchecker.image.AI_SHOW_DEBUG_SCORES
+import com.example.eringchecker.image.AiRingClassifier
+import com.example.eringchecker.image.AiScores
+import com.example.eringchecker.image.AiVerdictStabilizer
 import com.example.eringchecker.image.ImageComparator
 import com.example.eringchecker.image.JudgeSession
 import com.example.eringchecker.image.RingJudge
@@ -47,7 +52,8 @@ import java.util.concurrent.atomic.AtomicReference
 /**
  * カメラ画面（横画面固定）。
  * - SAMPLE モード: 「リングなし」「リングあり」「背景のみ」の基準画像を撮影・保存
- * - JUDGE モード : 基準画像とリアルタイム比較して判定結果を表示
+ * - JUDGE モード : AI モデル（[AiRingClassifier]）でリアルタイム判定して結果を表示
+ *   （[USE_AI_JUDGE] を false にすると、以前の基準画像との比較による判定に戻る）
  */
 class CameraActivity : AppCompatActivity() {
 
@@ -64,6 +70,16 @@ class CameraActivity : AppCompatActivity() {
     /** 判定モード中のみ非 null。解析スレッドから参照する（判定モードに入るたびに作り直してリセット）。 */
     @Volatile
     private var session: JudgeSession? = null
+
+    /** AI 判定モード中のみ非 null。解析スレッドでだけ使う。 */
+    @Volatile
+    private var classifier: AiRingClassifier? = null
+
+    @Volatile
+    private var stabilizer = AiVerdictStabilizer()
+
+    /** 最後に AI 判定した時刻（解析スレッドでだけ使う）。 */
+    private var lastInferenceAt = 0L
 
     /** 最新フレームのガイド枠内画像（サンプル撮影ボタン押下時に保存する）。 */
     private val latestRoi = AtomicReference<Bitmap?>()
@@ -123,7 +139,11 @@ class CameraActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         if (::binding.isInitialized) binding.root.removeCallbacks(clearVerdictRunnable)
-        if (::analysisExecutor.isInitialized) analysisExecutor.shutdown()
+        if (::analysisExecutor.isInitialized) {
+            // Interpreter は解析スレッドで使っているので、同じスレッドで閉じる
+            analysisExecutor.execute { classifier?.close(); classifier = null }
+            analysisExecutor.shutdown()
+        }
     }
 
     private fun hideSystemBars() {
@@ -161,7 +181,7 @@ class CameraActivity : AppCompatActivity() {
             .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
             .setOutputImageFormat(ImageAnalysis.OUTPUT_IMAGE_FORMAT_RGBA_8888)
             .build()
-            .also { it.setAnalyzer(analysisExecutor, RoiFrameAnalyzer(mirror = useFront, onRoi = ::onRoiFrame)) }
+            .also { it.setAnalyzer(analysisExecutor, RoiFrameAnalyzer(mirror = useFront, onRoi = ::onRoiFrame, onFrame = ::onAiFrame)) }
 
         val group = UseCaseGroup.Builder()
             .setViewPort(viewPort)
@@ -191,11 +211,28 @@ class CameraActivity : AppCompatActivity() {
         runOnUiThread { showState(state) }
     }
 
+    /** 解析スレッドで呼ばれる。AI 判定モード中、[AI_INFERENCE_INTERVAL_MS] ごとにモデルに通す。 */
+    private fun onAiFrame(frame: Bitmap) {
+        val currentClassifier = classifier
+        if (mode != Mode.JUDGE || currentClassifier == null) return
+        val now = System.currentTimeMillis()
+        if (now - lastInferenceAt < AI_INFERENCE_INTERVAL_MS) return
+        lastInferenceAt = now
+
+        val scores = currentClassifier.classify(frame)
+        val raw = AiRingClassifier.decide(scores)
+        val shown = stabilizer.update(raw)
+        Log.d(TAG, "AI OK=%.2f NG=%.2f 工具なし=%.2f → %s（表示: %s）".format(
+            scores.ok, scores.ng, scores.noTool, raw, shown))
+        runOnUiThread { showAiResult(shown, scores) }
+    }
+
     // ---------------------------------------------------------------- サンプル撮影
 
     private fun enterSampleMode() {
         mode = Mode.SAMPLE
         session = null
+        binding.textAiScores.visibility = View.GONE
         binding.root.removeCallbacks(clearVerdictRunnable)
         binding.textModeTitle.text = getString(R.string.title_sample_mode, size.displayName)
         binding.samplePanel.visibility = View.VISIBLE
@@ -241,7 +278,8 @@ class CameraActivity : AppCompatActivity() {
             showThumbnail(binding.imageNoRing, binding.textNoRingEmpty, samples[SampleType.NO_RING])
             showThumbnail(binding.imageHasRing, binding.textHasRingEmpty, samples[SampleType.HAS_RING])
             showThumbnail(binding.imageBackground, binding.textBackgroundEmpty, samples[SampleType.BACKGROUND])
-            binding.buttonGoJudge.isEnabled = samples.values.all { it != null }
+            // AI 判定は基準画像を使わないので、未登録でも判定へ進める
+            binding.buttonGoJudge.isEnabled = USE_AI_JUDGE || samples.values.all { it != null }
         }
     }
 
@@ -253,6 +291,37 @@ class CameraActivity : AppCompatActivity() {
     // ---------------------------------------------------------------- 判定
 
     private fun enterJudgeMode() {
+        if (USE_AI_JUDGE) enterAiJudgeMode() else enterLegacyJudgeMode()
+    }
+
+    private fun enterAiJudgeMode() {
+        lifecycleScope.launch {
+            if (classifier == null) {
+                classifier = withContext(Dispatchers.Default) {
+                    runCatching { AiRingClassifier(this@CameraActivity) }
+                        .onFailure { Log.e(TAG, "AI モデルの読み込みに失敗", it) }
+                        .getOrNull()
+                }
+            }
+            if (classifier == null) {
+                Toast.makeText(this@CameraActivity, R.string.toast_ai_load_failed, Toast.LENGTH_LONG).show()
+                enterSampleMode()
+                return@launch
+            }
+            stabilizer = AiVerdictStabilizer()
+            session = null
+            mode = Mode.JUDGE
+            binding.textModeTitle.text = getString(R.string.title_judge_mode, size.displayName)
+            binding.samplePanel.visibility = View.GONE
+            binding.judgePanel.visibility = View.VISIBLE
+            binding.textAiScores.text = ""
+            binding.textAiScores.visibility = if (AI_SHOW_DEBUG_SCORES) View.VISIBLE else View.GONE
+            clearVerdictDisplay()
+        }
+    }
+
+    /** 以前の、基準画像との比較による判定（[USE_AI_JUDGE] が false のときだけ使う）。 */
+    private fun enterLegacyJudgeMode() {
         lifecycleScope.launch {
             val newJudge = withContext(Dispatchers.Default) {
                 val noRing = store.load(size.id, SampleType.NO_RING)
@@ -339,10 +408,42 @@ class CameraActivity : AppCompatActivity() {
         }
     }
 
+    /** AI 判定の結果を表示する。工具なしのときは判定表示（灰色の四角も含めて）を出さない。 */
+    private fun showAiResult(verdict: Verdict, scores: AiScores) {
+        if (mode != Mode.JUDGE) return
+        binding.root.removeCallbacks(clearVerdictRunnable)
+        binding.root.postDelayed(clearVerdictRunnable, RESULT_TIMEOUT_MS)
+
+        if (AI_SHOW_DEBUG_SCORES) {
+            binding.textAiScores.text = getString(R.string.debug_ai_scores,
+                Math.round(scores.ok * 100), Math.round(scores.ng * 100), Math.round(scores.noTool * 100))
+        }
+
+        val (textRes, colorRes) = when (verdict) {
+            Verdict.HAS_RING -> R.string.result_has_ring to R.color.result_ok
+            Verdict.NO_RING -> R.string.result_no_ring to R.color.result_ng
+            Verdict.UNCERTAIN -> R.string.result_uncertain to R.color.result_neutral
+            Verdict.NO_TARGET -> {
+                clearVerdictDisplay()
+                return
+            }
+        }
+        val color = getColor(colorRes)
+        binding.textResult.setText(textRes)
+        binding.resultBanner.setBackgroundColor(color)
+        binding.resultBanner.visibility = View.VISIBLE
+        // 「判定できません」のときは枠を白のままにする
+        binding.guideOverlay.frameColor = if (verdict == Verdict.UNCERTAIN) Color.WHITE else color
+        binding.textToolDetected.visibility = View.VISIBLE
+        showVerdictMark(verdict)
+    }
+
     /** 判定表示（！・〇×・結果文字・枠の色）をすべてリセットする。 */
     private fun clearVerdictDisplay() {
         binding.textResult.text = ""
         binding.resultBanner.setBackgroundColor(getColor(R.color.result_neutral))
+        // AI 判定では、判定がないときは灰色の四角も出さない
+        if (USE_AI_JUDGE) binding.resultBanner.visibility = View.GONE
         binding.guideOverlay.frameColor = Color.WHITE
         binding.textToolDetected.visibility = View.GONE
         showVerdictMark(Verdict.NO_TARGET)
@@ -381,6 +482,8 @@ class CameraActivity : AppCompatActivity() {
         private const val STATE_MODE = "state_mode"
         /** この時間状態が届かなければ（解析停止など）、！・〇×を消す。 */
         private const val RESULT_TIMEOUT_MS = 1000L
+        /** true: AI モデルで判定する。false: 以前の基準画像との比較で判定する。 */
+        private const val USE_AI_JUDGE = true
 
         fun newIntent(context: Context, sizeId: String, mode: Mode): Intent =
             Intent(context, CameraActivity::class.java)

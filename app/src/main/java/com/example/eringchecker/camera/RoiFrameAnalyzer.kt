@@ -13,22 +13,27 @@ import androidx.camera.core.ImageProxy
  * サンプル撮影と判定で同じ処理経路を使うため、基準画像と判定フレームの条件（枠の位置・大きさ）がそろう。
  *
  * @param mirror 前面カメラ用。プレビュー（鏡像表示）と向きを合わせるため左右反転する。
+ * @param onFrame ガイド枠で切り出す前の、表示範囲・表示向きにそろえた映像を受け取る（AI 判定用）。
  */
 class RoiFrameAnalyzer(
     private val mirror: Boolean,
     private val onRoi: (Bitmap) -> Unit,
+    private val onFrame: ((Bitmap) -> Unit)? = null,
 ) : ImageAnalysis.Analyzer {
 
     override fun analyze(image: ImageProxy) {
-        val roi = try {
-            extractRoi(image)
+        val oriented = try {
+            extractOriented(image)
         } finally {
             image.close()
         }
-        onRoi(roi)
+        // 3) ガイド枠と同じ割合で中央の正方形を切り出し（プレビューと縦横比が同じなので枠と一致する）
+        val r = Roi.rect(oriented.width, oriented.height)
+        onRoi(Bitmap.createBitmap(oriented, r.left, r.top, r.width(), r.height()))
+        onFrame?.invoke(oriented)
     }
 
-    private fun extractRoi(image: ImageProxy): Bitmap {
+    private fun extractOriented(image: ImageProxy): Bitmap {
         val full = image.toBitmap()
 
         // 1) ビューポート（プレビュー表示範囲）で切り出し
@@ -41,18 +46,11 @@ class RoiFrameAnalyzer(
 
         // 2) 表示向きに回転（前面カメラはプレビューに合わせて左右反転）
         val rotation = image.imageInfo.rotationDegrees
-        val oriented = if (rotation == 0 && !mirror) {
-            visible
-        } else {
-            val m = Matrix().apply {
-                postRotate(rotation.toFloat())
-                if (mirror) postScale(-1f, 1f)
-            }
-            Bitmap.createBitmap(visible, 0, 0, visible.width, visible.height, m, true)
+        if (rotation == 0 && !mirror) return visible
+        val m = Matrix().apply {
+            postRotate(rotation.toFloat())
+            if (mirror) postScale(-1f, 1f)
         }
-
-        // 3) ガイド枠と同じ割合で中央の正方形を切り出し（プレビューと縦横比が同じなので枠と一致する）
-        val r = Roi.rect(oriented.width, oriented.height)
-        return Bitmap.createBitmap(oriented, r.left, r.top, r.width(), r.height())
+        return Bitmap.createBitmap(visible, 0, 0, visible.width, visible.height, m, true)
     }
 }
