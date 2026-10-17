@@ -72,7 +72,7 @@ class AiRingClassifier(context: Context) : Closeable {
         pixels = IntArray(inputSize * inputSize)
     }
 
-    /** [frame]（表示向きにそろえたカメラ映像）の中央の正方形を分類する。 */
+    /** [frame]（表示向きにそろえた、カメラの元の映像全体）の中央の正方形を分類する。 */
     fun classify(frame: Bitmap): AiScores {
         val side = (minOf(frame.width, frame.height) * AI_CROP_FRACTION).toInt().coerceAtLeast(1)
         val left = (frame.width - side) / 2

@@ -241,6 +241,7 @@ class CameraActivity : AppCompatActivity() {
         binding.imageVerdictMark.visibility = View.GONE
         binding.textToolDetected.visibility = View.GONE
         binding.guideOverlay.frameColor = Color.WHITE
+        binding.guideOverlay.visibility = View.VISIBLE
         refreshSampleThumbnails()
     }
 
@@ -316,6 +317,8 @@ class CameraActivity : AppCompatActivity() {
             binding.judgePanel.visibility = View.VISIBLE
             binding.textAiScores.text = ""
             binding.textAiScores.visibility = if (AI_SHOW_DEBUG_SCORES) View.VISIBLE else View.GONE
+            // AI は映像全体の中央を見るので、作業者に位置合わせさせないよう枠は出さない
+            binding.guideOverlay.visibility = View.GONE
             clearVerdictDisplay()
         }
     }
@@ -364,6 +367,7 @@ class CameraActivity : AppCompatActivity() {
             binding.resultBanner.setBackgroundColor(getColor(R.color.result_neutral))
             binding.imageVerdictMark.visibility = View.GONE
             binding.textToolDetected.visibility = View.GONE
+            binding.guideOverlay.visibility = View.VISIBLE
         }
     }
 

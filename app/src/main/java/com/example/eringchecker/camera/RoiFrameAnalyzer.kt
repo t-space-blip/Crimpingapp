@@ -13,7 +13,8 @@ import androidx.camera.core.ImageProxy
  * サンプル撮影と判定で同じ処理経路を使うため、基準画像と判定フレームの条件（枠の位置・大きさ）がそろう。
  *
  * @param mirror 前面カメラ用。プレビュー（鏡像表示）と向きを合わせるため左右反転する。
- * @param onFrame ガイド枠で切り出す前の、表示範囲・表示向きにそろえた映像を受け取る（AI 判定用）。
+ * @param onFrame プレビュー表示範囲で切り出す前の、カメラの元の映像全体（表示向きにそろえたもの）を受け取る（AI 判定用）。
+ *   学習写真（カメラアプリで横向き全画面で撮影）と同じ見え方にするため、ビューポートでは切り出さない。
  */
 class RoiFrameAnalyzer(
     private val mirror: Boolean,
@@ -22,35 +23,36 @@ class RoiFrameAnalyzer(
 ) : ImageAnalysis.Analyzer {
 
     override fun analyze(image: ImageProxy) {
-        val oriented = try {
-            extractOriented(image)
+        val (full, visible, rotation) = try {
+            val full = image.toBitmap()
+            Triple(full, cropToViewport(full, image), image.imageInfo.rotationDegrees)
         } finally {
             image.close()
         }
         // 3) ガイド枠と同じ割合で中央の正方形を切り出し（プレビューと縦横比が同じなので枠と一致する）
+        val oriented = orient(visible, rotation)
         val r = Roi.rect(oriented.width, oriented.height)
         onRoi(Bitmap.createBitmap(oriented, r.left, r.top, r.width(), r.height()))
-        onFrame?.invoke(oriented)
+        onFrame?.invoke(orient(full, rotation))
     }
 
-    private fun extractOriented(image: ImageProxy): Bitmap {
-        val full = image.toBitmap()
-
-        // 1) ビューポート（プレビュー表示範囲）で切り出し
+    /** 1) ビューポート（プレビュー表示範囲）で切り出し */
+    private fun cropToViewport(full: Bitmap, image: ImageProxy): Bitmap {
         val crop = image.cropRect
         val left = crop.left.coerceIn(0, full.width - 1)
         val top = crop.top.coerceIn(0, full.height - 1)
         val w = crop.width().coerceIn(1, full.width - left)
         val h = crop.height().coerceIn(1, full.height - top)
-        val visible = Bitmap.createBitmap(full, left, top, w, h)
+        return Bitmap.createBitmap(full, left, top, w, h)
+    }
 
-        // 2) 表示向きに回転（前面カメラはプレビューに合わせて左右反転）
-        val rotation = image.imageInfo.rotationDegrees
-        if (rotation == 0 && !mirror) return visible
+    /** 2) 表示向きに回転（前面カメラはプレビューに合わせて左右反転） */
+    private fun orient(bitmap: Bitmap, rotation: Int): Bitmap {
+        if (rotation == 0 && !mirror) return bitmap
         val m = Matrix().apply {
             postRotate(rotation.toFloat())
             if (mirror) postScale(-1f, 1f)
         }
-        return Bitmap.createBitmap(visible, 0, 0, visible.width, visible.height, m, true)
+        return Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, m, true)
     }
 }
