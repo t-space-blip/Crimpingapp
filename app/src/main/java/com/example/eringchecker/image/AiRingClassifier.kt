@@ -55,7 +55,7 @@ class AiRingClassifier(context: Context) : Closeable {
         }
         okIndex = labels.indexOf(LABEL_OK)
         ngIndex = labels.indexOf(LABEL_NG)
-        noToolIndex = labels.indexOf(LABEL_NO_TOOL)
+        noToolIndex = labels.indexOfFirst { it in LABELS_NO_TOOL }
         require(okIndex >= 0 && ngIndex >= 0 && noToolIndex >= 0) { "labels.txt のラベルが想定と違います: $labels" }
 
         val modelBytes = context.assets.open(MODEL_FILE).use { it.readBytes() }
@@ -101,7 +101,8 @@ class AiRingClassifier(context: Context) : Closeable {
         private const val LABELS_FILE = "labels.txt"
         private const val LABEL_OK = "OK"
         private const val LABEL_NG = "NG"
-        private const val LABEL_NO_TOOL = "工具なし"
+        /** 「工具なし」の表記ゆれ。どれか 1 つが labels.txt にあればよい。 */
+        private val LABELS_NO_TOOL = setOf("工具なし", "工具無し")
 
         /**
          * 1 回分の確率から判定を決める。
