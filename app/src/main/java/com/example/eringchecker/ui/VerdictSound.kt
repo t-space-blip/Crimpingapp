@@ -7,12 +7,13 @@ import com.example.eringchecker.R
 import com.example.eringchecker.image.Verdict
 import java.io.Closeable
 
-/** 効果音の再生速度（SoundPool の上限は 2.0）。速くするほど音の高さも上がる。 */
-private const val SOUND_RATE = 2.0f
+/** 効果音の再生速度。音声ファイル自体を 2 倍速（音の高さはそのまま）に作ってあるので、通常の速さで鳴らす。 */
+private const val SOUND_RATE = 1.0f
 
 /**
  * 〇・×の効果音（res/raw の sound_ok / sound_ng）を鳴らす。
  * 反応を速くするため、あらかじめメモリに読み込んでおける SoundPool を使う。
+ * 音声ファイルは ffmpeg の atempo=2.0 で、音の高さを変えずに 2 倍速にしたもの。
  */
 class VerdictSound(context: Context) : Closeable {
 
