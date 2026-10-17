@@ -84,6 +84,9 @@ class CameraActivity : AppCompatActivity() {
     /** 最新フレームのガイド枠内画像（サンプル撮影ボタン押下時に保存する）。 */
     private val latestRoi = AtomicReference<Bitmap?>()
 
+    /** 〇・×の効果音。UI スレッドでだけ使う。 */
+    private var verdictSound: VerdictSound? = null
+
     private var lastLoggedState: SessionState? = null
     private val clearVerdictRunnable = Runnable { if (mode == Mode.JUDGE) clearVerdictDisplay() }
 
@@ -109,6 +112,7 @@ class CameraActivity : AppCompatActivity() {
         }
         store = SampleStore(this)
         analysisExecutor = Executors.newSingleThreadExecutor()
+        verdictSound = VerdictSound(this)
 
         val requested = savedInstanceState?.getString(STATE_MODE)
             ?: intent.getStringExtra(EXTRA_MODE)
@@ -140,6 +144,8 @@ class CameraActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         if (::binding.isInitialized) binding.root.removeCallbacks(clearVerdictRunnable)
+        verdictSound?.close()
+        verdictSound = null
         if (::analysisExecutor.isInitialized) {
             // Interpreter は解析スレッドで使っているので、同じスレッドで閉じる
             analysisExecutor.execute { classifier?.close(); classifier = null }
@@ -479,11 +485,13 @@ class CameraActivity : AppCompatActivity() {
             mark.tag = null
             return
         }
-        // 同じ判定が続く間は描き直さない
+        // 同じ判定が続く間は描き直さない（効果音も鳴らさない）
         if (mark.tag == markRes && mark.visibility == View.VISIBLE) return
         mark.setImageResource(markRes)
         mark.tag = markRes
         mark.visibility = View.VISIBLE
+        // 〇・×に切り替わった瞬間だけ鳴らす
+        verdictSound?.play(verdict)
     }
 
     private fun labelOf(type: SampleType) = when (type) {
