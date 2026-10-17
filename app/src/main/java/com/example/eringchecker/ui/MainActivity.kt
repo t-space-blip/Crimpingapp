@@ -57,7 +57,8 @@ class MainActivity : AppCompatActivity() {
 
         binding.buttonStartJudge.setOnClickListener {
             val size = selectedSize ?: return@setOnClickListener
-            if (store.hasAll(size.id)) {
+            // AI 判定は基準画像を使わないので、未登録でもそのまま判定へ進める
+            if (CameraActivity.USE_AI_JUDGE || store.hasAll(size.id)) {
                 startActivity(CameraActivity.newIntent(this, size.id, CameraActivity.Mode.JUDGE))
             } else {
                 // 基準画像が未登録 → 警告してサンプル撮影へ誘導

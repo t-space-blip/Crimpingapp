@@ -483,7 +483,7 @@ class CameraActivity : AppCompatActivity() {
         /** この時間状態が届かなければ（解析停止など）、！・〇×を消す。 */
         private const val RESULT_TIMEOUT_MS = 1000L
         /** true: AI モデルで判定する。false: 以前の基準画像との比較で判定する。 */
-        private const val USE_AI_JUDGE = true
+        const val USE_AI_JUDGE = true
 
         fun newIntent(context: Context, sizeId: String, mode: Mode): Intent =
             Intent(context, CameraActivity::class.java)
