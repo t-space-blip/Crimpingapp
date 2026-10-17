@@ -119,6 +119,7 @@ class CameraActivity : AppCompatActivity() {
         binding.buttonCaptureBackground.setOnClickListener { captureSample(SampleType.BACKGROUND) }
         binding.buttonGoJudge.setOnClickListener { enterJudgeMode() }
         binding.buttonGoSample.setOnClickListener { enterSampleMode() }
+        binding.buttonBackHome.setOnClickListener { finish() }
 
         if (initialMode == Mode.JUDGE) enterJudgeMode() else enterSampleMode()
 
@@ -242,6 +243,7 @@ class CameraActivity : AppCompatActivity() {
         binding.textToolDetected.visibility = View.GONE
         binding.guideOverlay.frameColor = Color.WHITE
         binding.guideOverlay.visibility = View.VISIBLE
+        setFullScreenPreview(false)
         refreshSampleThumbnails()
     }
 
@@ -319,6 +321,7 @@ class CameraActivity : AppCompatActivity() {
             binding.textAiScores.visibility = if (AI_SHOW_DEBUG_SCORES) View.VISIBLE else View.GONE
             // AI は映像全体の中央を見るので、作業者に位置合わせさせないよう枠は出さない
             binding.guideOverlay.visibility = View.GONE
+            setFullScreenPreview(true)
             clearVerdictDisplay()
         }
     }
@@ -368,7 +371,17 @@ class CameraActivity : AppCompatActivity() {
             binding.imageVerdictMark.visibility = View.GONE
             binding.textToolDetected.visibility = View.GONE
             binding.guideOverlay.visibility = View.VISIBLE
+            setFullScreenPreview(false)
         }
+    }
+
+    /**
+     * true: 右側の操作パネルを隠してカメラ映像を画面全体に表示し、隅にホームへ戻るボタンを重ねる（AI 判定用）。
+     * false: 従来どおり右側に操作パネルを表示する。
+     */
+    private fun setFullScreenPreview(fullScreen: Boolean) {
+        binding.controlPanel.visibility = if (fullScreen) View.GONE else View.VISIBLE
+        binding.buttonBackHome.visibility = if (fullScreen) View.VISIBLE else View.GONE
     }
 
     /** 解析スレッドで呼ばれる。判定結果は毎回、工具なしは切り替わったときだけ Logcat に出す。 */

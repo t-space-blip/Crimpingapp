@@ -36,6 +36,7 @@
     <string name="btn_capture_background">背景のみを撮影（工具なし）</string>
     <string name="btn_go_judge">判定開始</string>
     <string name="btn_go_sample">サンプル再撮影</string>
+    <string name="btn_back_home">ホームへ戻る</string>
     <string name="no_image">未登録</string>
     <string name="toast_camera_not_ready">カメラの準備中です。少し待ってから再度撮影してください。</string>
     <string name="toast_saved">「%1$s」の基準画像を保存しました</string>

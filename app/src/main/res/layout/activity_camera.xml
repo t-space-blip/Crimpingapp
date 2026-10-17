@@ -93,10 +93,26 @@
             android:visibility="gone"
             tools:text="OK 95%\nNG 3%\n工具なし 2%"
             tools:visibility="visible" />
+
+        <!-- ホームへ戻る（AI 判定の全画面表示のときだけ、映像に重ねて表示） -->
+        <ImageButton
+            android:id="@+id/buttonBackHome"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:layout_gravity="top|end"
+            android:layout_margin="8dp"
+            android:background="@drawable/bg_overlay_button"
+            android:contentDescription="@string/btn_back_home"
+            android:padding="10dp"
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_back_home"
+            android:visibility="gone"
+            tools:visibility="visible" />
     </FrameLayout>
 
-    <!-- 操作パネル -->
+    <!-- 操作パネル（AI 判定中は非表示にして映像を全画面にする） -->
     <ScrollView
+        android:id="@+id/controlPanel"
         android:layout_width="240dp"
         android:layout_height="match_parent"
         android:background="@color/panel_background">

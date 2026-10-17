@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- カメラ映像に重ねる小さなボタンの背景（半透明の黒い丸） -->
+<ripple xmlns:android="http://schemas.android.com/apk/res/android"
+    android:color="#66FFFFFF">
+    <item>
+        <shape android:shape="oval">
+            <solid android:color="#99000000" />
+        </shape>
+    </item>
+</ripple>
